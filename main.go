@@ -21,7 +21,7 @@ func init() {
 	// init flags
 	flag.StringVar(&bindHost, "bind", "0.0.0.0:8080", "set bind host")
 	flag.StringVar(&dbConnectionString, "connection_string",
-		"host=192.168.0.6 user=postgres password=postgres dbname=demo sslmode=disable",
+		"host=192.168.0.8 user=postgres password=postgres dbname=demo sslmode=disable connect_timeout=2",
 		"db connection string")
 	flag.Parse()
 }
@@ -32,23 +32,29 @@ func main() {
 	// init database
 	dataSource, err := repository.NewDataSource(dbConnectionString)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Error().Err(err).Msg("DataSource")
 		return
 	}
-	defer dataSource.CloseDataSource()
+	defer dataSource.Close()
 
 	userService := service.NewUserService(repository.NewUserRepository(dataSource))
 	orderService := service.NewOrderService(repository.NewOrderRepository(dataSource))
-	s := api.NewServer()
-	s.GET("/user_orders", rest.GetUserOrdersHandler(userService))
-	ug := s.Group("/users")
+
+	r := api.NewRequestRouter()
+	r.ServeFiles("/static/*filepath", "web")
+	r.GET("/user_orders", rest.GetUserOrdersHandler(userService))
+
+	ug := r.Group("/users")
 	ug.GET("/", rest.GetUsersHandler(userService))
 	ug.POST("/", rest.CreateUserHandler(userService))
+
 	og := ug.Group("/:user_id")
 	og.GET("/", rest.GetUserHandler(userService))
 	og.GET("/orders", rest.GetOrdersHandler(orderService))
 	og.GET("/orders/:order_id", rest.GetOrderHandler(orderService))
-	if err := s.Start(":8080"); err != nil {
-		log.Fatal().Err(err)
+
+	s := api.NewHttpServer(r)
+	if err := s.ListenAndServe(bindHost); err != nil {
+		log.Error().Err(err).Msg("HttpServer")
 	}
 }

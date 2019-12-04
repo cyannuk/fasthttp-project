@@ -11,23 +11,27 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
-type dataSource struct {
+type DataSource struct {
 	*reform.DB
 }
 
-func (d dataSource) CloseDataSource() {
+func (d DataSource) Close() {
 	err := d.DBInterface().(*sql.DB).Close()
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("DataSource")
 	}
 }
 
-func NewDataSource(dbConnectionString string) (dataSource, error) {
+func NewDataSource(dbConnectionString string) (ds DataSource, err error) {
 	config, err := pgx.ParseConfig(dbConnectionString)
 	if err != nil {
-		return dataSource{}, err
+		return
 	}
 	db := stdlib.OpenDB(*config)
 	db.SetMaxOpenConns(runtime.NumCPU() * 4)
-	return dataSource{reform.NewDB(db, postgresql.Dialect, nil)}, nil
+	if err = db.Ping(); err != nil {
+		return
+	}
+	ds.DB = reform.NewDB(db, postgresql.Dialect, nil)
+	return
 }

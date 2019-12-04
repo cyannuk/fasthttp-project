@@ -8,11 +8,11 @@ import (
 
 type Order = model.Order
 
-type orderRepository struct {
-	dataSource
+type OrderRepository struct {
+	DataSource
 }
 
-func (orderRepo orderRepository) GetOrder(id int64) (*Order, error) {
+func (orderRepo OrderRepository) GetOrder(id int64) (*Order, error) {
 	order, err := orderRepo.FindByPrimaryKeyFrom(model.OrderTable, id)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func (orderRepo orderRepository) GetOrder(id int64) (*Order, error) {
 	return order.(*Order), nil
 }
 
-func (orderRepo orderRepository) GetOrders(userId int64, offset int, limit int) (orders []Order, err error) {
+func (orderRepo OrderRepository) GetOrders(userId int64, offset int, limit int) (orders []Order, err error) {
 	rows, err := orderRepo.SelectRows(model.OrderTable, "WHERE user_id = $1 ORDER BY id OFFSET $2 LIMIT $3",
 		userId, offset, limit)
 	if err != nil {
@@ -46,6 +46,6 @@ func (orderRepo orderRepository) GetOrders(userId int64, offset int, limit int) 
 	return
 }
 
-func NewOrderRepository(db dataSource) orderRepository {
-	return orderRepository{db}
+func NewOrderRepository(ds DataSource) OrderRepository {
+	return OrderRepository{ds}
 }

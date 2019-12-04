@@ -9,11 +9,11 @@ import (
 type User = model.User
 type UserOrder = model.UserOrder
 
-type userRepository struct {
-	dataSource
+type UserRepository struct {
+	DataSource
 }
 
-func (userRepo userRepository) GetUser(id int64) (*User, error) {
+func (userRepo UserRepository) GetUser(id int64) (*User, error) {
 	user, err := userRepo.FindByPrimaryKeyFrom(model.UserTable, id)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (userRepo userRepository) GetUser(id int64) (*User, error) {
 	return user.(*User), nil
 }
 
-func (userRepo userRepository) GetUsers(offset int, limit int) (users []model.User, err error) {
+func (userRepo UserRepository) GetUsers(offset int, limit int) (users []model.User, err error) {
 	rows, err := userRepo.SelectRows(model.UserTable, "ORDER BY id OFFSET $1 LIMIT $2", offset, limit)
 	if err != nil {
 		return
@@ -46,7 +46,7 @@ func (userRepo userRepository) GetUsers(offset int, limit int) (users []model.Us
 	return
 }
 
-func (userRepo userRepository) GetUserOrders(offset int, limit int) (userOrders []UserOrder, err error) {
+func (userRepo UserRepository) GetUserOrders(offset int, limit int) (userOrders []UserOrder, err error) {
 	rows, err := userRepo.Query(
 		"SELECT u.name, u.city, u.state, o.product_id, o.quantity, o.total " +
 		"FROM users u " +
@@ -76,10 +76,10 @@ func (userRepo userRepository) GetUserOrders(offset int, limit int) (userOrders 
 	return
 }
 
-func (userRepo userRepository) CreateUser(user *User) error {
+func (userRepo UserRepository) CreateUser(user *User) error {
 	return userRepo.Insert(user)
 }
 
-func NewUserRepository(db dataSource) userRepository {
-	return userRepository{db}
+func NewUserRepository(ds DataSource) UserRepository {
+	return UserRepository{ds}
 }

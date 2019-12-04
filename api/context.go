@@ -8,12 +8,12 @@ import (
 	"fasthttp-project/api/errors"
 )
 
-type context struct {
-	ctx *fasthttp.RequestCtx
+type Context struct {
+	*fasthttp.RequestCtx
 }
 
-func (c context) QueryIntArg(name string, defaultValue int) (int, error) {
-	value, err := c.ctx.QueryArgs().GetUint(name)
+func (c Context) QueryIntArg(name string, defaultValue int) (int, error) {
+	value, err := c.QueryArgs().GetUint(name)
 	if err != nil {
 		if err != fasthttp.ErrNoArgValue {
 			return -1, err
@@ -23,19 +23,15 @@ func (c context) QueryIntArg(name string, defaultValue int) (int, error) {
 	return value, nil
 }
 
-func (c context) PathInt64Arg(name string) (int64, error) {
-	value, err := strconv.ParseInt(c.ctx.UserValue(name).(string), 10, 64)
+func (c Context) PathInt64Arg(name string) (int64, error) {
+	value, err := strconv.ParseInt(c.UserValue(name).(string), 10, 64)
 	if err != nil {
 		return -1, err
 	}
 	return value, nil
 }
 
-func (c context) Body() []byte {
-	return c.ctx.PostBody()
-}
-
-func (c context) QueryOffsetArg() (int, error) {
+func (c Context) QueryOffsetArg() (int, error) {
 	offset, err := c.QueryIntArg("offset", 0)
 	if err != nil {
 		return -1, errors.ErrOffset
@@ -43,7 +39,7 @@ func (c context) QueryOffsetArg() (int, error) {
 	return offset, nil
 }
 
-func (c context) QueryLimitArg() (int, error) {
+func (c Context) QueryLimitArg() (int, error) {
 	limit, err := c.QueryIntArg("limit", 50)
 	if err != nil || limit == 0 {
 		return -1, errors.ErrLimit
