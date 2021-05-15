@@ -1,12 +1,13 @@
 package service
 
 import (
+	"io"
+
 	"fasthttp-project/domain/model"
 )
 
-type Order = model.Order
-
 type OrderService interface {
-	GetOrder(id int64) (*Order, error)
-	GetOrders(userId int64, offset int, limit int) (orders []Order, err error)
+	io.Closer
+	GetOrder(id int64) (*model.Order, error)
+	GetOrders(userId int64, offset int64, limit int64) ([]model.Order, error)
 }

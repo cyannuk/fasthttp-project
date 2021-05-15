@@ -27,7 +27,17 @@ func (v *orderTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *orderTableType) Columns() []string {
-	return []string{"id", "created_at", "user_id", "product_id", "discount", "quantity", "subtotal", "tax", "total"}
+	return []string{
+		"id",
+		"created_at",
+		"user_id",
+		"product_id",
+		"discount",
+		"quantity",
+		"subtotal",
+		"tax",
+		"total",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +57,22 @@ func (v *orderTableType) PKColumnIndex() uint {
 
 // OrderTable represents orders view or table in SQL database.
 var OrderTable = &orderTableType{
-	s: parse.StructInfo{Type: "Order", SQLSchema: "", SQLName: "orders", Fields: []parse.FieldInfo{{Name: "ID", Type: "int64", Column: "id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UserID", Type: "int64", Column: "user_id"}, {Name: "ProductID", Type: "int64", Column: "product_id"}, {Name: "Discount", Type: "*float64", Column: "discount"}, {Name: "Quantity", Type: "int32", Column: "quantity"}, {Name: "Subtotal", Type: "float64", Column: "subtotal"}, {Name: "Tax", Type: "float64", Column: "tax"}, {Name: "Total", Type: "float64", Column: "total"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Order",
+		SQLName: "orders",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "int64", Column: "id"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UserID", Type: "int64", Column: "user_id"},
+			{Name: "ProductID", Type: "int64", Column: "product_id"},
+			{Name: "Discount", Type: "*float64", Column: "discount"},
+			{Name: "Quantity", Type: "int32", Column: "quantity"},
+			{Name: "Subtotal", Type: "float64", Column: "subtotal"},
+			{Name: "Tax", Type: "float64", Column: "tax"},
+			{Name: "Total", Type: "float64", Column: "total"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Order).Values(),
 }
 
@@ -125,13 +150,11 @@ func (s *Order) HasPK() bool {
 	return s.ID != OrderTable.z[OrderTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *Order) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
-	} else {
-		s.ID = pk.(int64)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

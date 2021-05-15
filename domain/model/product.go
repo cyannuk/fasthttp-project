@@ -4,11 +4,9 @@ import (
 	"time"
 )
 
-//go:generate easyjson -snake_case -omit_empty
 //go:generate reform
 
 //reform:products
-//easyjson:json
 type Product struct {
 	ID        int64     `reform:"id,pk"`
 	CreatedAt time.Time `reform:"created_at"`
@@ -20,6 +18,3 @@ type Product struct {
 	Title     string    `reform:"title"`
 	Vendor    string    `reform:"vendor"`
 }
-
-//easyjson:json
-type Products []Product

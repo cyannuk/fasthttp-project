@@ -27,7 +27,21 @@ func (v *userTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *userTableType) Columns() []string {
-	return []string{"id", "created_at", "name", "email", "address", "city", "state", "zip", "birth_date", "latitude", "longitude", "password", "source"}
+	return []string{
+		"id",
+		"created_at",
+		"name",
+		"email",
+		"address",
+		"city",
+		"state",
+		"zip",
+		"birth_date",
+		"latitude",
+		"longitude",
+		"password",
+		"source",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +61,26 @@ func (v *userTableType) PKColumnIndex() uint {
 
 // UserTable represents users view or table in SQL database.
 var UserTable = &userTableType{
-	s: parse.StructInfo{Type: "User", SQLSchema: "", SQLName: "users", Fields: []parse.FieldInfo{{Name: "ID", Type: "int64", Column: "id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Email", Type: "string", Column: "email"}, {Name: "Address", Type: "string", Column: "address"}, {Name: "City", Type: "string", Column: "city"}, {Name: "State", Type: "string", Column: "state"}, {Name: "Zip", Type: "string", Column: "zip"}, {Name: "BirthDate", Type: "string", Column: "birth_date"}, {Name: "Latitude", Type: "float64", Column: "latitude"}, {Name: "Longitude", Type: "float64", Column: "longitude"}, {Name: "Password", Type: "string", Column: "password"}, {Name: "Source", Type: "string", Column: "source"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "User",
+		SQLName: "users",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "int64", Column: "id"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "Name", Type: "string", Column: "name"},
+			{Name: "Email", Type: "string", Column: "email"},
+			{Name: "Address", Type: "string", Column: "address"},
+			{Name: "City", Type: "string", Column: "city"},
+			{Name: "State", Type: "string", Column: "state"},
+			{Name: "Zip", Type: "string", Column: "zip"},
+			{Name: "BirthDate", Type: "string", Column: "birth_date"},
+			{Name: "Latitude", Type: "float64", Column: "latitude"},
+			{Name: "Longitude", Type: "float64", Column: "longitude"},
+			{Name: "Password", Type: "string", Column: "password"},
+			{Name: "Source", Type: "string", Column: "source"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(User).Values(),
 }
 
@@ -137,13 +170,11 @@ func (s *User) HasPK() bool {
 	return s.ID != UserTable.z[UserTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *User) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
-	} else {
-		s.ID = pk.(int64)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

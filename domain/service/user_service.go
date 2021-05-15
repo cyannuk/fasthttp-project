@@ -3,31 +3,29 @@ package service
 import (
 	"fasthttp-project/domain/model"
 	"fasthttp-project/interface/repository"
+	"fasthttp-project/interface/service"
 )
 
-type User = model.User
-type UserOrder = model.UserOrder
-
-type UserService struct {
+type userService struct {
 	repository.UserRepository
 }
 
-func (u UserService) GetUser(id int64) (*User, error) {
-	return u.UserRepository.GetUser(id)
+func (service userService) GetUser(id int64) (*model.User, error) {
+	return service.UserRepository.GetUser(id)
 }
 
-func (u UserService) GetUsers(offset int, limit int) (users []User, err error) {
-	return u.UserRepository.GetUsers(offset, limit)
+func (service userService) GetUsers(offset int64, limit int64) ([]model.User, error) {
+	return service.UserRepository.GetUsers(offset, limit)
 }
 
-func (u UserService) GetUserOrders(offset int, limit int) (userOrders []UserOrder, err error) {
-	return u.UserRepository.GetUserOrders(offset, limit)
+func (service userService) GetUserOrders(offset int64, limit int64) ([]model.UserOrder, error) {
+	return service.UserRepository.GetUserOrders(offset, limit)
 }
 
-func (u UserService) CreateUser(user *User) error {
-	return u.UserRepository.CreateUser(user)
+func (service userService) CreateUser(user *model.User) error {
+	return service.UserRepository.CreateUser(user)
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
-	return UserService{repo}
+func NewUserService(repository repository.UserRepository) service.UserService {
+	return userService{repository}
 }

@@ -27,7 +27,17 @@ func (v *productTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *productTableType) Columns() []string {
-	return []string{"id", "created_at", "category", "ean", "price", "quantity", "rating", "title", "vendor"}
+	return []string{
+		"id",
+		"created_at",
+		"category",
+		"ean",
+		"price",
+		"quantity",
+		"rating",
+		"title",
+		"vendor",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +57,22 @@ func (v *productTableType) PKColumnIndex() uint {
 
 // ProductTable represents products view or table in SQL database.
 var ProductTable = &productTableType{
-	s: parse.StructInfo{Type: "Product", SQLSchema: "", SQLName: "products", Fields: []parse.FieldInfo{{Name: "ID", Type: "int64", Column: "id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "Category", Type: "string", Column: "category"}, {Name: "Ean", Type: "string", Column: "ean"}, {Name: "Price", Type: "float64", Column: "price"}, {Name: "Quantity", Type: "int32", Column: "quantity"}, {Name: "Rating", Type: "float64", Column: "rating"}, {Name: "Title", Type: "string", Column: "title"}, {Name: "Vendor", Type: "string", Column: "vendor"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Product",
+		SQLName: "products",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "int64", Column: "id"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "Category", Type: "string", Column: "category"},
+			{Name: "Ean", Type: "string", Column: "ean"},
+			{Name: "Price", Type: "float64", Column: "price"},
+			{Name: "Quantity", Type: "int32", Column: "quantity"},
+			{Name: "Rating", Type: "float64", Column: "rating"},
+			{Name: "Title", Type: "string", Column: "title"},
+			{Name: "Vendor", Type: "string", Column: "vendor"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Product).Values(),
 }
 
@@ -125,13 +150,11 @@ func (s *Product) HasPK() bool {
 	return s.ID != ProductTable.z[ProductTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *Product) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
-	} else {
-		s.ID = pk.(int64)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"runtime"
 
+	"fasthttp-project/config"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
-	"github.com/rs/zerolog/log"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
@@ -15,23 +15,19 @@ type DataSource struct {
 	*reform.DB
 }
 
-func (d DataSource) Close() {
-	err := d.DBInterface().(*sql.DB).Close()
-	if err != nil {
-		log.Error().Err(err).Msg("DataSource")
-	}
+func (dataSource DataSource) Close() error {
+	return dataSource.DBInterface().(*sql.DB).Close()
 }
 
-func NewDataSource(dbConnectionString string) (ds DataSource, err error) {
-	config, err := pgx.ParseConfig(dbConnectionString)
+func NewDataSource(config *config.DatabaseConfig) (DataSource, error) {
+	connConfig, err := pgx.ParseConfig(config.ConnectionString())
 	if err != nil {
-		return
+		return DataSource{}, err
 	}
-	db := stdlib.OpenDB(*config)
+	db := stdlib.OpenDB(*connConfig)
 	db.SetMaxOpenConns(runtime.NumCPU() * 4)
 	if err = db.Ping(); err != nil {
-		return
+		return DataSource{}, err
 	}
-	ds.DB = reform.NewDB(db, postgresql.Dialect, nil)
-	return
+	return DataSource{reform.NewDB(db, postgresql.Dialect, nil)}, nil
 }

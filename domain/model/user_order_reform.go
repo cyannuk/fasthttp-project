@@ -27,7 +27,14 @@ func (v *userOrderViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *userOrderViewType) Columns() []string {
-	return []string{"name", "city", "state", "product_id", "quantity", "total"}
+	return []string{
+		"name",
+		"city",
+		"state",
+		"product_id",
+		"quantity",
+		"total",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,7 +44,19 @@ func (v *userOrderViewType) NewStruct() reform.Struct {
 
 // UserOrderView represents user_orders view or table in SQL database.
 var UserOrderView = &userOrderViewType{
-	s: parse.StructInfo{Type: "UserOrder", SQLSchema: "", SQLName: "user_orders", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "name"}, {Name: "City", Type: "string", Column: "city"}, {Name: "State", Type: "string", Column: "state"}, {Name: "ProductID", Type: "int64", Column: "product_id"}, {Name: "Quantity", Type: "int32", Column: "quantity"}, {Name: "Total", Type: "float64", Column: "total"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:    "UserOrder",
+		SQLName: "user_orders",
+		Fields: []parse.FieldInfo{
+			{Name: "Name", Type: "string", Column: "name"},
+			{Name: "City", Type: "string", Column: "city"},
+			{Name: "State", Type: "string", Column: "state"},
+			{Name: "ProductID", Type: "int64", Column: "product_id"},
+			{Name: "Quantity", Type: "int32", Column: "quantity"},
+			{Name: "Total", Type: "float64", Column: "total"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(UserOrder).Values(),
 }
 
