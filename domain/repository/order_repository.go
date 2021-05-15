@@ -6,46 +6,38 @@ import (
 	"fasthttp-project/domain/model"
 )
 
-type Order = model.Order
-
-type OrderRepository struct {
+type orderRepository struct {
 	DataSource
 }
 
-func (orderRepo OrderRepository) GetOrder(id int64) (*Order, error) {
-	order, err := orderRepo.FindByPrimaryKeyFrom(model.OrderTable, id)
+func (repository orderRepository) GetOrder(id int64) (*model.Order, error) {
+	order, err := repository.FindByPrimaryKeyFrom(model.OrderTable, id)
 	if err != nil {
 		return nil, err
 	}
-	return order.(*Order), nil
+	return order.(*model.Order), nil
 }
 
-func (orderRepo OrderRepository) GetOrders(userId int64, offset int, limit int) (orders []Order, err error) {
-	rows, err := orderRepo.SelectRows(model.OrderTable, "WHERE user_id = $1 ORDER BY id OFFSET $2 LIMIT $3",
-		userId, offset, limit)
+func (repository orderRepository) GetOrders(userId int64, offset int64, limit int64) ([]model.Order, error) {
+	rows, err := repository.SelectRows(model.OrderTable, "WHERE user_id = $1 ORDER BY id OFFSET $2 LIMIT $3", userId, offset, limit)
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer func() {
-		e := rows.Close()
-		if e != nil && err == nil {
-			err = e
-		}
-	}()
-	orders = make([]Order, 0, limit)
+	orders := make([]model.Order, 0, limit)
 	for {
-		var order Order
-		if err = orderRepo.NextRow(&order, rows); err != nil {
+		var order model.Order
+		if err = repository.NextRow(&order, rows); err != nil {
+			if err == reform.ErrNoRows {
+				err = nil
+			}
+			_ = rows.Close()
 			break
 		}
 		orders = append(orders, order)
 	}
-	if err == reform.ErrNoRows {
-		err = nil
-	}
-	return
+	return orders, err
 }
 
-func NewOrderRepository(ds DataSource) OrderRepository {
-	return OrderRepository{ds}
+func NewOrderRepository(dataSource DataSource) orderRepository {
+	return orderRepository{dataSource}
 }

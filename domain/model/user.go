@@ -4,10 +4,8 @@ import (
 	"time"
 )
 
-//go:generate easyjson -snake_case -omit_empty
 //go:generate reform
 
-//easyjson:json
 //reform:users
 type User struct {
 	ID        int64     `reform:"id,pk" json:",omit-dec"`
@@ -24,6 +22,3 @@ type User struct {
 	Password  string    `reform:"password" json:",omit-enc"`
 	Source    string    `reform:"source"`
 }
-
-//easyjson:json
-type Users []User

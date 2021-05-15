@@ -1,24 +1,22 @@
 package service
 
 import (
+	"fasthttp-project/domain/model"
 	"fasthttp-project/interface/repository"
-	"fasthttp-project/interface/service"
 )
 
-type Order = service.Order
-
-type OrderService struct {
+type orderService struct {
 	repository.OrderRepository
 }
 
-func (o OrderService) GetOrder(id int64) (*Order, error) {
-	return o.OrderRepository.GetOrder(id)
+func (service orderService) GetOrder(id int64) (*model.Order, error) {
+	return service.OrderRepository.GetOrder(id)
 }
 
-func (o OrderService) GetOrders(userId int64, offset int, limit int) (orders []Order, err error) {
-	return o.OrderRepository.GetOrders(userId, offset, limit)
+func (service orderService) GetOrders(userId int64, offset int64, limit int64) ([]model.Order, error) {
+	return service.OrderRepository.GetOrders(userId, offset, limit)
 }
 
-func NewOrderService(repo repository.OrderRepository) OrderService {
-	return OrderService{repo}
+func NewOrderService(repository repository.OrderRepository) orderService {
+	return orderService{repository}
 }

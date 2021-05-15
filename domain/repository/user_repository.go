@@ -6,80 +6,67 @@ import (
 	"fasthttp-project/domain/model"
 )
 
-type User = model.User
-type UserOrder = model.UserOrder
-
-type UserRepository struct {
+type userRepository struct {
 	DataSource
 }
 
-func (userRepo UserRepository) GetUser(id int64) (*User, error) {
-	user, err := userRepo.FindByPrimaryKeyFrom(model.UserTable, id)
+func (repository userRepository) GetUser(id int64) (*model.User, error) {
+	user, err := repository.FindByPrimaryKeyFrom(model.UserTable, id)
 	if err != nil {
 		return nil, err
 	}
-	return user.(*User), nil
+	return user.(*model.User), nil
 }
 
-func (userRepo UserRepository) GetUsers(offset int, limit int) (users []model.User, err error) {
-	rows, err := userRepo.SelectRows(model.UserTable, "ORDER BY id OFFSET $1 LIMIT $2", offset, limit)
+func (repository userRepository) GetUsers(offset int64, limit int64) ([]model.User, error) {
+	rows, err := repository.SelectRows(model.UserTable, "ORDER BY id OFFSET $1 LIMIT $2", offset, limit)
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer func() {
-		e := rows.Close()
-		if e != nil && err == nil {
-			err = e
-		}
-	}()
-	users = make([]User, 0, limit)
+	users := make([]model.User, 0, limit)
 	for {
-		var user User
-		if err = userRepo.NextRow(&user, rows); err != nil {
+		var user model.User
+		if err = repository.NextRow(&user, rows); err != nil {
+			if err == reform.ErrNoRows {
+				err = nil
+			}
+			_ = rows.Close()
 			break
 		}
 		users = append(users, user)
 	}
-	if err == reform.ErrNoRows {
-		err = nil
-	}
-	return
+	return users, err
 }
 
-func (userRepo UserRepository) GetUserOrders(offset int, limit int) (userOrders []UserOrder, err error) {
-	rows, err := userRepo.Query(
+func (repository userRepository) GetUserOrders(offset int64, limit int64) ([]model.UserOrder, error) {
+	rows, err := repository.Query(
 		"SELECT u.name, u.city, u.state, o.product_id, o.quantity, o.total " +
 		"FROM users u " +
 		"INNER JOIN orders o ON o.user_id = u.id " +
 		"ORDER BY u.id, o.id " +
 		"OFFSET $1 LIMIT $2", offset, limit)
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer func() {
-		e := rows.Close()
-		if e != nil && err == nil {
-			err = e
-		}
-	}()
-	userOrders = make([]UserOrder, 0, limit)
+	userOrders := make([]model.UserOrder, 0, limit)
 	for {
-		var userOrder UserOrder
-		if err = userRepo.NextRow(&userOrder, rows); err != nil {
+		var userOrder model.UserOrder
+		if err = repository.NextRow(&userOrder, rows); err != nil {
+			if err == reform.ErrNoRows {
+				err = nil
+			}
+			_ = rows.Close()
 			break
 		}
 		userOrders = append(userOrders, userOrder)
 	}
-	if err == reform.ErrNoRows {
-		err = nil
-	}
-	return
+	return userOrders, nil
 }
 
-func (userRepo UserRepository) CreateUser(user *User) error {
-	return userRepo.Insert(user)
+func (repository userRepository) CreateUser(user *model.User) error {
+	return repository.Insert(user)
 }
 
-func NewUserRepository(ds DataSource) UserRepository {
-	return UserRepository{ds}
+func NewUserRepository(dataSource DataSource) userRepository {
+	return userRepository{dataSource}
 }

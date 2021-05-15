@@ -4,10 +4,8 @@ import (
 	"time"
 )
 
-//go:generate easyjson -snake_case -omit_empty
 //go:generate reform
 
-//easyjson:json
 //reform:orders
 type Order struct {
 	ID        int64     `reform:"id,pk"`
@@ -20,6 +18,3 @@ type Order struct {
 	Tax       float64   `reform:"tax"`
 	Total     float64   `reform:"total"`
 }
-
-//easyjson:json
-type Orders []Order

@@ -1,9 +1,7 @@
 package model
 
-//go:generate easyjson -snake_case -omit_empty
 //go:generate reform
 
-//easyjson:json
 //reform:user_orders
 type UserOrder struct {
 	Name      string  `reform:"name"`
@@ -13,6 +11,3 @@ type UserOrder struct {
 	Quantity  int32   `reform:"quantity"`
 	Total     float64 `reform:"total"`
 }
-
-//easyjson:json
-type UserOrders []UserOrder
