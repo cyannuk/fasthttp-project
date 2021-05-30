@@ -5,60 +5,73 @@ import (
 	"fmt"
 )
 
-type DatabaseConfig struct {
-	Host           string
-	User           string
-	Password       string
-	DbName         string
-	Ssl            bool
-	ConnectTimeout uint
+type databaseConfig struct {
+	host           string
+	user           string
+	password       string
+	dbName         string
+	ssl            bool
+	connectTimeout uint
 }
 
-type ServerConfig struct {
-	Address string
-	Port    uint
-	Cert    string
-	Key     string
+type serverConfig struct {
+	address string
+	port    uint
+	cert    string
+	key     string
 }
 
-func (config *DatabaseConfig) ConnectionString() string {
+type DatabaseConfig interface {
+	ConnectionString() string
+}
+
+type ServerConfig interface {
+	BindAddress() string
+	Certificate() (string, string)
+}
+
+func (config *databaseConfig) ConnectionString() string {
 	var sslmode string
-	if config.Ssl {
+	if config.ssl {
 		sslmode = "enable"
 	} else {
 		sslmode = "disable"
 	}
 	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s connect_timeout=%d",
-		config.Host, config.User, config.Password, config.DbName, sslmode, config.ConnectTimeout)
+		config.host, config.user, config.password, config.dbName, sslmode, config.connectTimeout)
 }
 
-func (config *ServerConfig) BindAddress() string {
-	return fmt.Sprintf("%s:%d", config.Address, config.Port)
+func (config *serverConfig) BindAddress() string {
+	return fmt.Sprintf("%s:%d", config.address, config.port)
 }
 
-func GetDatabaseConfig() *DatabaseConfig {
-	return &databaseConfig
+func (config *serverConfig) Certificate() (string, string) {
+	return config.cert, config.key
 }
 
-func GetServerConfig() *ServerConfig {
-	return &serverConfig
+func GetDatabaseConfig() DatabaseConfig {
+	return &databaseCfg
 }
 
-var databaseConfig = DatabaseConfig{}
-var serverConfig = ServerConfig{}
+func GetServerConfig() ServerConfig {
+	return &serverCfg
+}
+
+var databaseCfg databaseConfig
+var serverCfg serverConfig
 
 func init() {
-	flag.StringVar(&serverConfig.Address, "address", "localhost", "Bind host address")
-	flag.UintVar(&serverConfig.Port, "port", 8080, "Listen port")
-	flag.StringVar(&serverConfig.Cert, "cert", "", "SSL certificate file")
-	flag.StringVar(&serverConfig.Key, "key", "", "Certificate key")
+	flag.StringVar(&serverCfg.address, "address", "localhost", "Bind host address")
+	flag.UintVar(&serverCfg.port, "port", 8080, "Listen port")
+	flag.StringVar(&serverCfg.cert, "cert", "", "SSL certificate file")
+	flag.StringVar(&serverCfg.key, "key", "", "Certificate key")
 
-	flag.StringVar(&databaseConfig.Host, "db_host", "localhost", "Database host address")
-	flag.StringVar(&databaseConfig.User, "db_user", "", "Database user name")
-	flag.StringVar(&databaseConfig.Password, "db_password", "", "Database user password")
-	flag.StringVar(&databaseConfig.DbName, "db_name", "", "Database name")
-	flag.BoolVar(&databaseConfig.Ssl, "ssl", false, "SSL mode")
-	flag.UintVar(&databaseConfig.ConnectTimeout, "connect_timeout", 2, "Database connect timeout")
+	flag.StringVar(&databaseCfg.host, "db_host", "localhost", "Database host address")
+	flag.StringVar(&databaseCfg.user, "db_user", "", "Database user name")
+	flag.StringVar(&databaseCfg.password, "db_password", "", "Database user password")
+	flag.StringVar(&databaseCfg.dbName, "db_name", "", "Database name")
+	flag.BoolVar(&databaseCfg.ssl, "ssl", false, "SSL mode")
+	flag.UintVar(&databaseCfg.connectTimeout, "connect_timeout", 2, "Database connect timeout")
 
 	flag.Parse()
 }

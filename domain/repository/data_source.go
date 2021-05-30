@@ -19,7 +19,7 @@ func (dataSource DataSource) Close() error {
 	return dataSource.DBInterface().(*sql.DB).Close()
 }
 
-func NewDataSource(config *config.DatabaseConfig) (DataSource, error) {
+func NewDataSource(config config.DatabaseConfig) (DataSource, error) {
 	connConfig, err := pgx.ParseConfig(config.ConnectionString())
 	if err != nil {
 		return DataSource{}, err

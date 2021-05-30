@@ -6,6 +6,7 @@ import (
 	"sync"
 	"syscall"
 
+	"fasthttp-project/config"
 	"fasthttp-project/interface/service"
 	"github.com/fasthttp/router"
 	"github.com/rs/zerolog/log"
@@ -17,10 +18,16 @@ type Application struct {
 	router       *router.Router
 	userService  service.UserService
 	orderService service.OrderService
+	config       config.ServerConfig
 }
 
-func (application *Application) Start(bindAddress string) error {
-	return application.server.ListenAndServe(bindAddress)
+func (application *Application) Start() error {
+	certFile, keyFile := application.config.Certificate()
+	if len(certFile) > 0 {
+		return application.server.ListenAndServeTLS(application.config.BindAddress(), certFile, keyFile)
+	} else {
+		return application.server.ListenAndServe(application.config.BindAddress())
+	}
 }
 
 func (application *Application) Stop() {
@@ -39,8 +46,8 @@ func (application *Application) Stop() {
 	}
 }
 
-func NewApplication(userService service.UserService, orderService service.OrderService) *Application {
-	application := Application{&fasthttp.Server{NoDefaultServerHeader: true}, router.New(), userService, orderService}
+func NewApplication(userService service.UserService, orderService service.OrderService, config config.ServerConfig) *Application {
+	application := Application{&fasthttp.Server{NoDefaultServerHeader: true}, router.New(), userService, orderService, config}
 
 	once := sync.Once{}
 	channel := make(chan os.Signal, 3)

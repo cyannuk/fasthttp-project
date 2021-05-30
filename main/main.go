@@ -10,13 +10,17 @@ import (
 
 func init() {
 	// init logger
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02 15:04:05", NoColor: true}) // .Level(zerolog.ErrorLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05", NoColor: true}).Level(zerolog.InfoLevel)
 }
 
 func main() {
 	log.Info().Msg("Starting..")
 
-	err := composition.Application()
+	application, err := composition.Application()
+	if err != nil {
+		log.Error().Err(err).Msg("Composition")
+	}
+	err = application.Start()
 	if err != nil {
 		log.Error().Err(err).Msg("Application")
 	}

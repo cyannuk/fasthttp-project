@@ -61,5 +61,5 @@ func sendData(data interface{}, ctx *fasthttp.RequestCtx) {
 		return
 	}
 	ctx.SetContentType("application/json")
-	ctx.Response.AppendBody(body)
+	ctx.Response.SetBodyRaw(body)
 }
