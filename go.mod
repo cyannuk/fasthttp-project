@@ -8,6 +8,6 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/rs/zerolog v1.23.0
-	github.com/valyala/fasthttp v1.27.0
+	github.com/valyala/fasthttp v1.34.0
 	gopkg.in/reform.v1 v1.5.0
 )
